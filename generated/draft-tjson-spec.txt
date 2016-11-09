@@ -76,10 +76,11 @@ Table of Contents
        3.3.2.  Unsigned Integers ("u") . . . . . . . . . . . . . . .   7
      3.4.  Timestamps ("t")  . . . . . . . . . . . . . . . . . . . .   8
      3.5.  Arrays ("A")  . . . . . . . . . . . . . . . . . . . . . .   8
-     3.6.  Objects ("O") . . . . . . . . . . . . . . . . . . . . . .   8
-     3.7.  Floating Points . . . . . . . . . . . . . . . . . . . . .   9
-   4.  Normative References  . . . . . . . . . . . . . . . . . . . .   9
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   9
+     3.6.  Sets ("S")  . . . . . . . . . . . . . . . . . . . . . . .   9
+     3.7.  Objects ("O") . . . . . . . . . . . . . . . . . . . . . .   9
+     3.8.  Floating Points . . . . . . . . . . . . . . . . . . . . .  10
+   4.  Normative References  . . . . . . . . . . . . . . . . . . . .  10
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  10
 
 1.  Introduction
 
@@ -105,7 +106,6 @@ Table of Contents
    It supports two non-scalar types:
 
    o  Objects
-
 
 
 
@@ -421,8 +421,10 @@ Internet-Draft        TJSON Data Interchange Format        November 2016
    array.  Non-scalars are parameterized by the types they contain, so
    fully identifying an array depends on its contents.
 
-   Empty arrays do not have a corresponding inner type, in which case
-   the inner type may be omitted from the type description.
+   Empty arrays do not require a corresponding inner type, in which case
+   the inner type MAY be omitted from the type description.  However,
+   type parameters are mandatory unless the array is empty, and parsers
+   MUST reject documents missing an inner type for non-empty arrays.
 
    The following is an example of a TJSON array containing integers:
 
@@ -433,15 +435,13 @@ Internet-Draft        TJSON Data Interchange Format        November 2016
 
          {"example:A<A<i>>:" [["1", "2"], ["3", "4"], ["5", "6"]]}
 
-   The following is an example of an empty array:
+   The following is an example of an empty array which omits its type
+   parameter:
 
                             {"example:A<>": []}
 
-3.6.  Objects ("O")
+   An empty array containing an inner type signature is also valid:
 
-   Type information MUST be present in all object member names (i.e. all
-   member names must be tagged).  Parsers MUST reject objects with
-   untagged members.
 
 
 
@@ -449,6 +449,45 @@ Arcieri & Laurie           Expires May 7, 2017                  [Page 8]
 
 Internet-Draft        TJSON Data Interchange Format        November 2016
 
+
+                           {"example:A<i>": []}
+
+3.6.  Sets ("S")
+
+   Sets are identified by the upper-case "S" tag and carry a type
+   parameter like arrays.  The associated value MUST use JSON array
+   syntax.
+
+   Unlike arrays, the members of sets MUST be unique.  TJSON documents
+   describing sets with duplicate members MUST be rejected by conforming
+   parsers.
+
+   Like empty arrays, the inner type definition for empty sets MAY be
+   omitted from the type signature.  A type paramater is mandatory for
+   non-empty sets and MUST be included if the set has any members.
+
+   The following is an example of a TJSON set of integers:
+
+                     {"example:S<i>: ["1", "2", "3"]}
+
+   Sets can contain arrays, and vice versa:
+
+               {"example:S<A<i>>": [["1", "2"], ["3", "4"]]}
+
+   The following is an example of an empty set which omits its type
+   parameter:
+
+                            {"example:S<>": []}
+
+   An empty set containing an inner type signature is also valid:
+
+                           {"example:S<i>": []}
+
+3.7.  Objects ("O")
+
+   Type information MUST be present in all object member names (i.e. all
+   member names must be tagged).  Parsers MUST reject objects with
+   untagged members.
 
    When embedded within another non-scalar type such as an array,
    objects are identified by the tag "O".  Objects self-identify their
@@ -458,10 +497,19 @@ Internet-Draft        TJSON Data Interchange Format        November 2016
 
               {"example:A<O>": [{"a:i": "1"}, {"b:i": "2"}]}
 
+
+
+
+
+Arcieri & Laurie           Expires May 7, 2017                  [Page 9]
+
+Internet-Draft        TJSON Data Interchange Format        November 2016
+
+
    Object member names MUST be unique in TJSON.  Repeated use of the
    same name for more than one member MUST be rejected by TJSON parsers.
 
-3.7.  Floating Points
+3.8.  Floating Points
 
    All numeric literals which are not represented as tagged strings MUST
    be treated as floating points under TJSON.  This is already the
@@ -501,4 +549,12 @@ Authors' Addresses
 
 
 
-Arcieri & Laurie           Expires May 7, 2017                  [Page 9]
+
+
+
+
+
+
+
+
+Arcieri & Laurie           Expires May 7, 2017                 [Page 10]

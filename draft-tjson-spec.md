@@ -286,7 +286,7 @@ The "A" tag, with an associated JSON array value, identifies a TJSON array.
 Non-scalars are parameterized by the types they contain, so fully identifying
 an array depends on its contents.
 
-Empty arrays do not have a corresponding inner type, in which case the inner
+Empty arrays do not require a corresponding inner type, in which case the inner
 type MAY be omitted from the type description. However, type parameters are
 mandatory unless the array is empty, and parsers MUST reject documents missing
 an inner type for non-empty arrays.
@@ -299,9 +299,41 @@ The following is an example of a two dimensional array containing integers:
 
     {"example:A<A<i>>:" [["1", "2"], ["3", "4"], ["5", "6"]]}
 
-The following is an example of an empty array:
+The following is an example of an empty array which omits its type parameter:
 
     {"example:A<>": []}
+
+An empty array containing an inner type signature is also valid:
+
+    {"example:A<i>": []}
+
+## Sets ("S")
+
+Sets are identified by the upper-case "S" tag and carry a type parameter like
+arrays. The associated value MUST use JSON array syntax.
+
+Unlike arrays, the members of sets MUST be unique. TJSON documents describing
+sets with duplicate members MUST be rejected by conforming parsers.
+
+Like empty arrays, the inner type definition for empty sets MAY be omitted from
+the type signature. A type paramater is mandatory for non-empty sets and MUST
+be included if the set has any members.
+
+The following is an example of a TJSON set of integers:
+
+    {"example:S<i>: ["1", "2", "3"]}
+
+Sets can contain arrays, and vice versa:
+
+    {"example:S<A<i>>": [["1", "2"], ["3", "4"]]}
+
+The following is an example of an empty set which omits its type parameter:
+
+    {"example:S<>": []}
+
+An empty set containing an inner type signature is also valid:
+
+    {"example:S<i>": []}
 
 ## Objects ("O")
 
